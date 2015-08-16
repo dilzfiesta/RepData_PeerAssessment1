@@ -1,25 +1,78 @@
 ---
-title: "Reproducible Research: Peer Assessment 1"
-output: 
-  html_document:
-    keep_md: true
+title: "Peer Assessment 1"
+author: "Mohtashim Shaikh"
+date: "16 August 2015"
+output: html_document
 ---
 
+### Loading and preprocessing the data
 
-## Loading and preprocessing the data
+Read the data and convert date column to date format
+
+```{r}
+df <- read.csv("activity.csv")
+df$date <- as.Date(df$date)
+```
+
+### What is mean total number of steps taken per day?
+
+Below is the histogram of steps taken in this activity
+
+```{r}
+agg_df <- na.omit(df)
+agg_df <- subset(agg_df, agg_df$steps > 0)
+agg_by_date <- aggregate(steps ~ date, data = agg_df, FUN = "sum")
+hist(agg_by_date$steps, main = "Histogram of steps", xlab = "Steps")
+```
+
+Mean of the total number of steps taken per day
+
+```{r}
+aggregate(steps ~ date, data = agg_df, FUN = "mean")
+```
+
+Median of the total number of steps taken per day
+
+```{r}
+aggregate(steps ~ date, data = agg_df, FUN = "median")
+```
+
+### What is the average daily activity pattern?
+
+Plotting the time series of 5-minute interval 
+
+```{r}
+agg_m <- aggregate(steps ~ interval, data = df, FUN = "mean")
+plot(agg_m$interval, agg_m$steps, type="l", main="Time series plot of 5 mins interval", xlab="Intevals", ylab="Average number of steps per day")
+```
+
+Interval with maximum number of steps averaged across all days 
+```{r}
+subset(agg_m, agg_m$steps == max(agg_m$steps))[1]
+```
+
+### Imputing missing values
+
+Total number of missing values in the dataset 
+
+```{r}
+nrow(df) - nrow(na.omit(df))
+```
+
+Take the mean for that 5-minute interval for all days
+```{r}
+agg_m <- aggregate(steps ~ interval, data = df, FUN = "mean")
 
 
+```
 
-## What is mean total number of steps taken per day?
+### Are there differences in activity patterns between weekdays and weekends?
 
+Add a new column "day" with either "Weekend" or "Weekday"
 
+```{r}
+df$tmp <- weekdays(as.Date(df$date))
+df$day <- ifelse(df$tmp == "Saturday" | df$tmp == "Sunday", "Weekend", "Weekday")
+df$tmp <- NULL
+```
 
-## What is the average daily activity pattern?
-
-
-
-## Imputing missing values
-
-
-
-## Are there differences in activity patterns between weekdays and weekends?
